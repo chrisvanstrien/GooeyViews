@@ -7,21 +7,39 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		839A190A1BFB27EF000B9D03 /* Threshold.metal in Sources */ = {isa = PBXBuildFile; fileRef = 839A19091BFB27EF000B9D03 /* Threshold.metal */; };
 		83E370BF1BFAD8C700BCABAC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370BE1BFAD8C700BCABAC /* AppDelegate.swift */; };
 		83E370C11BFAD8C700BCABAC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370C01BFAD8C700BCABAC /* ViewController.swift */; };
 		83E370C41BFAD8C700BCABAC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 83E370C21BFAD8C700BCABAC /* Main.storyboard */; };
-		83E370C61BFAD8C700BCABAC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 83E370C51BFAD8C700BCABAC /* Assets.xcassets */; };
 		83E370C91BFAD8C700BCABAC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 83E370C71BFAD8C700BCABAC /* LaunchScreen.storyboard */; };
+		83E370D21BFADA9200BCABAC /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 83E370D01BFADA9200BCABAC /* Metal.framework */; };
+		83E370D31BFADA9200BCABAC /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 83E370D11BFADA9200BCABAC /* MetalKit.framework */; };
+		83E370D51BFAE10600BCABAC /* Blend.metal in Sources */ = {isa = PBXBuildFile; fileRef = 83E370D41BFAE10600BCABAC /* Blend.metal */; };
+		83E370D81BFAE3EC00BCABAC /* a.png in Resources */ = {isa = PBXBuildFile; fileRef = 83E370D61BFAE3EC00BCABAC /* a.png */; };
+		83E370D91BFAE3EC00BCABAC /* b.png in Resources */ = {isa = PBXBuildFile; fileRef = 83E370D71BFAE3EC00BCABAC /* b.png */; };
+		83E370DB1BFAE47300BCABAC /* TextureFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370DA1BFAE47300BCABAC /* TextureFactory.swift */; };
+		83E370DD1BFAE96800BCABAC /* MatrixFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370DC1BFAE96800BCABAC /* MatrixFactory.swift */; };
+		83E370DF1BFAE97800BCABAC /* UniformFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370DE1BFAE97800BCABAC /* UniformFactory.swift */; };
+		83E370E11BFB132700BCABAC /* Display.metal in Sources */ = {isa = PBXBuildFile; fileRef = 83E370E01BFB132700BCABAC /* Display.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		839A19091BFB27EF000B9D03 /* Threshold.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Threshold.metal; sourceTree = "<group>"; };
 		83E370BB1BFAD8C700BCABAC /* GooeyViews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GooeyViews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		83E370BE1BFAD8C700BCABAC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		83E370C01BFAD8C700BCABAC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		83E370C31BFAD8C700BCABAC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		83E370C51BFAD8C700BCABAC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		83E370C81BFAD8C700BCABAC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		83E370CA1BFAD8C700BCABAC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		83E370D01BFADA9200BCABAC /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		83E370D11BFADA9200BCABAC /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		83E370D41BFAE10600BCABAC /* Blend.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Blend.metal; sourceTree = "<group>"; };
+		83E370D61BFAE3EC00BCABAC /* a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = a.png; sourceTree = "<group>"; };
+		83E370D71BFAE3EC00BCABAC /* b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = b.png; sourceTree = "<group>"; };
+		83E370DA1BFAE47300BCABAC /* TextureFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextureFactory.swift; sourceTree = "<group>"; };
+		83E370DC1BFAE96800BCABAC /* MatrixFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatrixFactory.swift; sourceTree = "<group>"; };
+		83E370DE1BFAE97800BCABAC /* UniformFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniformFactory.swift; sourceTree = "<group>"; };
+		83E370E01BFB132700BCABAC /* Display.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Display.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -29,15 +47,49 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				83E370D21BFADA9200BCABAC /* Metal.framework in Frameworks */,
+				83E370D31BFADA9200BCABAC /* MetalKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		839A19061BFB276B000B9D03 /* Textures */ = {
+			isa = PBXGroup;
+			children = (
+				83E370D61BFAE3EC00BCABAC /* a.png */,
+				83E370D71BFAE3EC00BCABAC /* b.png */,
+			);
+			name = Textures;
+			sourceTree = "<group>";
+		};
+		839A19071BFB277B000B9D03 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				83E370E01BFB132700BCABAC /* Display.metal */,
+				83E370D41BFAE10600BCABAC /* Blend.metal */,
+				839A19091BFB27EF000B9D03 /* Threshold.metal */,
+			);
+			name = Shaders;
+			sourceTree = "<group>";
+		};
+		839A19081BFB2784000B9D03 /* Junk */ = {
+			isa = PBXGroup;
+			children = (
+				83E370C21BFAD8C700BCABAC /* Main.storyboard */,
+				83E370C71BFAD8C700BCABAC /* LaunchScreen.storyboard */,
+				83E370BE1BFAD8C700BCABAC /* AppDelegate.swift */,
+				83E370CA1BFAD8C700BCABAC /* Info.plist */,
+			);
+			name = Junk;
+			sourceTree = "<group>";
+		};
 		83E370B21BFAD8C700BCABAC = {
 			isa = PBXGroup;
 			children = (
+				83E370D01BFADA9200BCABAC /* Metal.framework */,
+				83E370D11BFADA9200BCABAC /* MetalKit.framework */,
 				83E370BD1BFAD8C700BCABAC /* GooeyViews */,
 				83E370BC1BFAD8C700BCABAC /* Products */,
 			);
@@ -54,12 +106,13 @@
 		83E370BD1BFAD8C700BCABAC /* GooeyViews */ = {
 			isa = PBXGroup;
 			children = (
-				83E370BE1BFAD8C700BCABAC /* AppDelegate.swift */,
+				839A19081BFB2784000B9D03 /* Junk */,
+				839A19071BFB277B000B9D03 /* Shaders */,
+				839A19061BFB276B000B9D03 /* Textures */,
 				83E370C01BFAD8C700BCABAC /* ViewController.swift */,
-				83E370C21BFAD8C700BCABAC /* Main.storyboard */,
-				83E370C51BFAD8C700BCABAC /* Assets.xcassets */,
-				83E370C71BFAD8C700BCABAC /* LaunchScreen.storyboard */,
-				83E370CA1BFAD8C700BCABAC /* Info.plist */,
+				83E370DA1BFAE47300BCABAC /* TextureFactory.swift */,
+				83E370DC1BFAE96800BCABAC /* MatrixFactory.swift */,
+				83E370DE1BFAE97800BCABAC /* UniformFactory.swift */,
 			);
 			path = GooeyViews;
 			sourceTree = "<group>";
@@ -123,7 +176,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				83E370C91BFAD8C700BCABAC /* LaunchScreen.storyboard in Resources */,
-				83E370C61BFAD8C700BCABAC /* Assets.xcassets in Resources */,
+				83E370D91BFAE3EC00BCABAC /* b.png in Resources */,
+				83E370D81BFAE3EC00BCABAC /* a.png in Resources */,
 				83E370C41BFAD8C700BCABAC /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -135,7 +189,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				83E370DB1BFAE47300BCABAC /* TextureFactory.swift in Sources */,
+				83E370DF1BFAE97800BCABAC /* UniformFactory.swift in Sources */,
+				83E370D51BFAE10600BCABAC /* Blend.metal in Sources */,
+				839A190A1BFB27EF000B9D03 /* Threshold.metal in Sources */,
 				83E370C11BFAD8C700BCABAC /* ViewController.swift in Sources */,
+				83E370E11BFB132700BCABAC /* Display.metal in Sources */,
+				83E370DD1BFAE96800BCABAC /* MatrixFactory.swift in Sources */,
 				83E370BF1BFAD8C700BCABAC /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -286,6 +346,7 @@
 				83E370CF1BFAD8C700BCABAC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
