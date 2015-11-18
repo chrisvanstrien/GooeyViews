@@ -24,8 +24,8 @@ class ViewController: UIViewController {
     var displayPipelineState: MTLRenderPipelineState!
     var thresholdPipelineState: MTLComputePipelineState!
     
-    var aTexture: MTLTexture!
-    var bTexture: MTLTexture!
+    var heartTexture: MTLTexture!
+    var splatTexture: MTLTexture!
     
     var blendedTexture: MTLTexture!
     var thresholdedTexture: MTLTexture!
@@ -85,8 +85,8 @@ class ViewController: UIViewController {
         do {
             let textureFactory = TextureFactory(device: device)
             
-            aTexture = textureFactory.createTexture(filename: "a", render: false, read: true, write: false)
-            bTexture = textureFactory.createTexture(filename: "b", render: false, read: true, write: false)
+            heartTexture = textureFactory.createTexture(filename: "arrow", render: false, read: true, write: false)
+            splatTexture = textureFactory.createTexture(filename: "heart", render: false, read: true, write: false)
             
             blendedTexture = textureFactory.createEmptyFloatTexture(width: screenSize.width, height: screenSize.height, render: true, read: true, write: false)
             thresholdedTexture = textureFactory.createEmptyFloatTexture(width: screenSize.width, height: screenSize.height, render: false, read: true, write: true)
@@ -190,19 +190,19 @@ class ViewController: UIViewController {
         
         // Blend -----
         do {
-            let scale = CATransform3DMakeScale(0.5, 0.5, 0.5)
-            let translate = CATransform3DMakeTranslation(-0.15, 0, 0)
+            let scale = CATransform3DMakeScale(0.5, 0.25, 1)
+            let translate = CATransform3DMakeTranslation(-0.375, 0, 0)
             let transform = CATransform3DConcat(scale, translate)
             
-            renderView(transform: transform, isoOffset: 0, texture: aTexture, first: true)
+            renderView(transform: transform, isoOffset: 0, texture: heartTexture, first: true)
         }
         
         do {
-            let scale = CATransform3DMakeScale(0.5, 0.5, 0.5)
-            let translate = CATransform3DMakeTranslation(0.15, 0, 0)
+            let scale = CATransform3DMakeScale(0.5, 0.25, 1)
+            let translate = CATransform3DMakeTranslation(0.375, 0, 0)
             let transform = CATransform3DConcat(scale, translate)
             
-            renderView(transform: transform, isoOffset: 0, texture: bTexture, first: false)
+            renderView(transform: transform, isoOffset: 0, texture: splatTexture, first: false)
         }
         // -----
         

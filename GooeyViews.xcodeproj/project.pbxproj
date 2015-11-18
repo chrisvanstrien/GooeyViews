@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8316D0511BFC91F000530D90 /* heart.png in Resources */ = {isa = PBXBuildFile; fileRef = 8316D0501BFC91F000530D90 /* heart.png */; };
+		8316D0531BFC940B00530D90 /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 8316D0521BFC940B00530D90 /* arrow.png */; };
 		839A190A1BFB27EF000B9D03 /* Threshold.metal in Sources */ = {isa = PBXBuildFile; fileRef = 839A19091BFB27EF000B9D03 /* Threshold.metal */; };
 		83E370BF1BFAD8C700BCABAC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370BE1BFAD8C700BCABAC /* AppDelegate.swift */; };
 		83E370C11BFAD8C700BCABAC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370C01BFAD8C700BCABAC /* ViewController.swift */; };
@@ -15,8 +17,6 @@
 		83E370D21BFADA9200BCABAC /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 83E370D01BFADA9200BCABAC /* Metal.framework */; };
 		83E370D31BFADA9200BCABAC /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 83E370D11BFADA9200BCABAC /* MetalKit.framework */; };
 		83E370D51BFAE10600BCABAC /* Blend.metal in Sources */ = {isa = PBXBuildFile; fileRef = 83E370D41BFAE10600BCABAC /* Blend.metal */; };
-		83E370D81BFAE3EC00BCABAC /* a.png in Resources */ = {isa = PBXBuildFile; fileRef = 83E370D61BFAE3EC00BCABAC /* a.png */; };
-		83E370D91BFAE3EC00BCABAC /* b.png in Resources */ = {isa = PBXBuildFile; fileRef = 83E370D71BFAE3EC00BCABAC /* b.png */; };
 		83E370DB1BFAE47300BCABAC /* TextureFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370DA1BFAE47300BCABAC /* TextureFactory.swift */; };
 		83E370DD1BFAE96800BCABAC /* MatrixFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370DC1BFAE96800BCABAC /* MatrixFactory.swift */; };
 		83E370DF1BFAE97800BCABAC /* UniformFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370DE1BFAE97800BCABAC /* UniformFactory.swift */; };
@@ -24,6 +24,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8316D0501BFC91F000530D90 /* heart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = heart.png; sourceTree = "<group>"; };
+		8316D0521BFC940B00530D90 /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow.png; sourceTree = "<group>"; };
 		839A19091BFB27EF000B9D03 /* Threshold.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Threshold.metal; sourceTree = "<group>"; };
 		83E370BB1BFAD8C700BCABAC /* GooeyViews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GooeyViews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		83E370BE1BFAD8C700BCABAC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -34,8 +36,6 @@
 		83E370D01BFADA9200BCABAC /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		83E370D11BFADA9200BCABAC /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		83E370D41BFAE10600BCABAC /* Blend.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Blend.metal; sourceTree = "<group>"; };
-		83E370D61BFAE3EC00BCABAC /* a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = a.png; sourceTree = "<group>"; };
-		83E370D71BFAE3EC00BCABAC /* b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = b.png; sourceTree = "<group>"; };
 		83E370DA1BFAE47300BCABAC /* TextureFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextureFactory.swift; sourceTree = "<group>"; };
 		83E370DC1BFAE96800BCABAC /* MatrixFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatrixFactory.swift; sourceTree = "<group>"; };
 		83E370DE1BFAE97800BCABAC /* UniformFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniformFactory.swift; sourceTree = "<group>"; };
@@ -58,8 +58,8 @@
 		839A19061BFB276B000B9D03 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
-				83E370D61BFAE3EC00BCABAC /* a.png */,
-				83E370D71BFAE3EC00BCABAC /* b.png */,
+				8316D0521BFC940B00530D90 /* arrow.png */,
+				8316D0501BFC91F000530D90 /* heart.png */,
 			);
 			name = Textures;
 			sourceTree = "<group>";
@@ -176,9 +176,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				83E370C91BFAD8C700BCABAC /* LaunchScreen.storyboard in Resources */,
-				83E370D91BFAE3EC00BCABAC /* b.png in Resources */,
-				83E370D81BFAE3EC00BCABAC /* a.png in Resources */,
+				8316D0511BFC91F000530D90 /* heart.png in Resources */,
 				83E370C41BFAD8C700BCABAC /* Main.storyboard in Resources */,
+				8316D0531BFC940B00530D90 /* arrow.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,15 +9,13 @@ kernel void kernelThreshold(
     
     float4 blendedSample = blended.read(gid);
     
-    float interpolation = 0.025;
+    float isolevel = 0.5;
     
-    float isolevel = 0.95;
-    
-    // if min or max goes out of (0, 1) range, bad stuff happens
+    float interpolationRange = 0.0375;
 
     float4 threshold = smoothstep(
-        isolevel - interpolation,
-        isolevel + interpolation,
+        isolevel - interpolationRange,
+        isolevel,
         blendedSample);
     
     thresholded.write(threshold, gid);

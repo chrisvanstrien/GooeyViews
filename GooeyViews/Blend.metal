@@ -8,6 +8,7 @@ struct Transform {
     float4x4 transform;
 };
 
+// This might be better off a factor, not offset.
 struct IsoOffset {
     float isoOffset;
 };
@@ -63,6 +64,7 @@ fragment FragmentOut fragmentBlend(
     
     // this is messed up // is it anymore?
     float4 distanceFieldSample = distanceField.sample(simpleSampler, uv);
+    float4 offsetDistance = distanceFieldSample + isoOffset;
     float4 color = float4(1) - (float4(1) - distanceFieldSample) * (float4(1) - destination);
     
     FragmentOut fragmentOut;
