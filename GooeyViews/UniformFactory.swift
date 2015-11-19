@@ -32,11 +32,10 @@ class UniformFactory {
         return buffer
     }
     
-    func matrixIsoOffsetBuffer(matrix matrix: CATransform3D, isoOffset: Float) -> MTLBuffer {
+    func matrixIsoFactorBuffer(matrix matrix: CATransform3D, isoFactor: Float) -> MTLBuffer {
         let matrixArray = MatrixFactory.array(matrix)
-        let appended = matrixArray + [isoOffset]
+        let appended = matrixArray + [isoFactor]
         let size = appended.count * FLOAT_SIZE
-        NSLog("\(size)")
         let buffer = device.newBufferWithBytes(appended, length: size, options: [])
 
         return buffer

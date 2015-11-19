@@ -143,7 +143,7 @@ class ViewController: UIViewController {
         }
     }
     
-    func renderView(transform transform: CATransform3D, isoOffset: Float, texture: MTLTexture, first: Bool) {
+    func renderView(transform transform: CATransform3D, isoFactor: Float, texture: MTLTexture, first: Bool) {
         
         let command = commandQueue.commandBuffer()
         
@@ -165,13 +165,13 @@ class ViewController: UIViewController {
             let uniformFactory = UniformFactory(device: device)
             
             let transformUniformBuffer = uniformFactory.matrixUniformBuffer(matrices: [transform])
-            let isoOffsetUniformBuffer = uniformFactory.floatUniformBuffer(value: isoOffset)
+            let isoFactorUniformBuffer = uniformFactory.floatUniformBuffer(value: isoFactor)
             
             let encoder = command.renderCommandEncoderWithDescriptor(renderPassDescriptor)
             encoder.setRenderPipelineState(self.blendPipelineState)
             encoder.setVertexBuffer(self.attributeBuffer, offset: 0, atIndex: 0) // use set buffers
             encoder.setVertexBuffer(transformUniformBuffer, offset: 0, atIndex: 1) // use set buffers
-            encoder.setFragmentBuffer(isoOffsetUniformBuffer, offset: 0, atIndex: 0)
+            encoder.setFragmentBuffer(isoFactorUniformBuffer, offset: 0, atIndex: 0)
             encoder.setFragmentTexture(texture, atIndex: 0)
             encoder.setFrontFacingWinding(.Clockwise)
             encoder.setCullMode(.Back)
@@ -187,22 +187,28 @@ class ViewController: UIViewController {
     }
     
     func step() {
+    
+        let time = NSDate().timeIntervalSince1970
+        let speed = time / 1.0
+        let second = fmod(speed, 1.0)
+        let piFactor = M_PI * 2 * second
+        let wave = CGFloat(sin(piFactor))
         
         // Blend -----
         do {
             let scale = CATransform3DMakeScale(0.5, 0.25, 1)
-            let translate = CATransform3DMakeTranslation(-0.375, 0, 0)
+            let translate = CATransform3DMakeTranslation(-0.35 + 0.15 * wave, 0, 0)
             let transform = CATransform3DConcat(scale, translate)
             
-            renderView(transform: transform, isoOffset: 0, texture: heartTexture, first: true)
+            renderView(transform: transform, isoFactor: 1, texture: heartTexture, first: true)
         }
         
         do {
             let scale = CATransform3DMakeScale(0.5, 0.25, 1)
-            let translate = CATransform3DMakeTranslation(0.375, 0, 0)
+            let translate = CATransform3DMakeTranslation(0.3, 0, 0)
             let transform = CATransform3DConcat(scale, translate)
             
-            renderView(transform: transform, isoOffset: 0, texture: splatTexture, first: false)
+            renderView(transform: transform, isoFactor: (Float(wave) + 1.0) / 2.0, texture: splatTexture, first: false)
         }
         // -----
         

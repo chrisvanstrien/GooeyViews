@@ -8,9 +8,8 @@ struct Transform {
     float4x4 transform;
 };
 
-// This might be better off a factor, not offset.
-struct IsoOffset {
-    float isoOffset;
+struct IsoFactor {
+    float isoFactor;
 };
 
 struct VertexIn {
@@ -54,21 +53,22 @@ constexpr sampler simpleSampler(filter::linear);
 
 fragment FragmentOut fragmentBlend(
     FragmentIn fragmentIn [[stage_in]],
-    const device IsoOffset& uniforms [[buffer(0)]],
+    const device IsoFactor& uniforms [[buffer(0)]],
     texture2d<float, access::sample> distanceField [[texture(0)]],
     float4 destination [[color(0)]]) {
 
-    float isoOffset = uniforms.isoOffset;
+    float isoFactor = uniforms.isoFactor;
     
     float2 uv = fragmentIn.uv;
     
     // this is messed up // is it anymore?
     float4 distanceFieldSample = distanceField.sample(simpleSampler, uv);
-    float4 offsetDistance = distanceFieldSample + isoOffset;
-    float4 color = float4(1) - (float4(1) - distanceFieldSample) * (float4(1) - destination);
+    float4 offsetDistance = saturate(pow(distanceFieldSample, 1 / isoFactor)); // saturate needed?
+    float4 color = 1 - (1 - offsetDistance) * (1 - destination);
     
     FragmentOut fragmentOut;
     fragmentOut.color = color;
+    fragmentOut.color.a = 1; //
     
     return fragmentOut;
 }

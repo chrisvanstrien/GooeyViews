@@ -18,5 +18,7 @@ kernel void kernelThreshold(
         isolevel,
         blendedSample);
     
+    threshold.a = 1.0; // 
+    
     thresholded.write(threshold, gid);
 }
