@@ -5,6 +5,7 @@ import MetalKit
 
 // matrices only need to hold 2d transform
 // uvs can be infered based on local vertex positions
+// gooeyness factor, runtime property, raises texture to a power, scaling back outer glow
 
 class ViewController: UIViewController {
 
@@ -24,10 +25,12 @@ class ViewController: UIViewController {
     var displayPipelineState: MTLRenderPipelineState!
     var thresholdPipelineState: MTLComputePipelineState!
     
+    var colorTexture: MTLTexture!
     var heartTexture: MTLTexture!
     var splatTexture: MTLTexture!
     
     var blendedTexture: MTLTexture!
+    var accumulatedWeightTexture: MTLTexture!
     var thresholdedTexture: MTLTexture!
     
     override func viewDidLoad() {
@@ -87,8 +90,10 @@ class ViewController: UIViewController {
             
             heartTexture = textureFactory.createTexture(filename: "arrow", render: false, read: true, write: false)
             splatTexture = textureFactory.createTexture(filename: "heart", render: false, read: true, write: false)
+            colorTexture = textureFactory.createTexture(filename: "test", render: false, read: true, write: false)
             
             blendedTexture = textureFactory.createEmptyFloatTexture(width: screenSize.width, height: screenSize.height, render: true, read: true, write: false)
+            accumulatedWeightTexture = textureFactory.createEmptyFloatTexture(width: screenSize.width, height: screenSize.height, render: true, read: true, write: false)
             thresholdedTexture = textureFactory.createEmptyFloatTexture(width: screenSize.width, height: screenSize.height, render: false, read: true, write: true)
         }
         
@@ -111,6 +116,7 @@ class ViewController: UIViewController {
             descriptor.vertexFunction = vertexBlend
             descriptor.fragmentFunction = fragmentBlend
             descriptor.colorAttachments[0].pixelFormat = .RGBA16Float
+            descriptor.colorAttachments[1].pixelFormat = .RGBA16Float // weight
             
             return try! device.newRenderPipelineStateWithDescriptor(descriptor)
         }()
@@ -143,21 +149,26 @@ class ViewController: UIViewController {
         }
     }
     
-    func renderView(transform transform: CATransform3D, isoFactor: Float, texture: MTLTexture, first: Bool) {
+    func renderView(transform transform: CATransform3D, distanceMap: MTLTexture, colorMap: MTLTexture, first: Bool) {
         
         let command = commandQueue.commandBuffer()
         
         let encoder: MTLRenderCommandEncoder = {
             
             let renderPassDescriptor: MTLRenderPassDescriptor = {
-                let clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
+                let clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
                 
                 let descriptor = MTLRenderPassDescriptor()
-                let attachment = descriptor.colorAttachments[0]
                 
-                attachment.texture = self.blendedTexture
-                attachment.loadAction = first ? .Clear : .Load
-                attachment.clearColor = clearColor
+                let color = descriptor.colorAttachments[0]
+                color.texture = self.blendedTexture
+                color.loadAction = first ? .Clear : .Load
+                color.clearColor = clearColor
+                
+                let weight = descriptor.colorAttachments[1] // weight
+                weight.texture = self.accumulatedWeightTexture
+                weight.loadAction = first ? .Clear : .Load
+                weight.clearColor = clearColor
                 
                 return descriptor
             }()
@@ -165,14 +176,13 @@ class ViewController: UIViewController {
             let uniformFactory = UniformFactory(device: device)
             
             let transformUniformBuffer = uniformFactory.matrixUniformBuffer(matrices: [transform])
-            let isoFactorUniformBuffer = uniformFactory.floatUniformBuffer(value: isoFactor)
             
             let encoder = command.renderCommandEncoderWithDescriptor(renderPassDescriptor)
             encoder.setRenderPipelineState(self.blendPipelineState)
             encoder.setVertexBuffer(self.attributeBuffer, offset: 0, atIndex: 0) // use set buffers
             encoder.setVertexBuffer(transformUniformBuffer, offset: 0, atIndex: 1) // use set buffers
-            encoder.setFragmentBuffer(isoFactorUniformBuffer, offset: 0, atIndex: 0)
-            encoder.setFragmentTexture(texture, atIndex: 0)
+            encoder.setFragmentTexture(distanceMap, atIndex: 0)
+            encoder.setFragmentTexture(colorMap, atIndex: 1)
             encoder.setFrontFacingWinding(.Clockwise)
             encoder.setCullMode(.Back)
             
@@ -200,15 +210,17 @@ class ViewController: UIViewController {
             let translate = CATransform3DMakeTranslation(-0.35 + 0.15 * wave, 0, 0)
             let transform = CATransform3DConcat(scale, translate)
             
-            renderView(transform: transform, isoFactor: 1, texture: heartTexture, first: true)
+            renderView(transform: transform, distanceMap: heartTexture, colorMap: colorTexture, first: true)
         }
         
         do {
-            let scale = CATransform3DMakeScale(0.5, 0.25, 1)
+            let scaleWave = (wave + 1) / 4 + 0.5
+            
+            let scale = CATransform3DMakeScale(0.5 * scaleWave, 0.25 * scaleWave, 1)
             let translate = CATransform3DMakeTranslation(0.3, 0, 0)
             let transform = CATransform3DConcat(scale, translate)
             
-            renderView(transform: transform, isoFactor: (Float(wave) + 1.0) / 2.0, texture: splatTexture, first: false)
+            renderView(transform: transform, distanceMap: splatTexture, colorMap: colorTexture, first: false)
         }
         // -----
         

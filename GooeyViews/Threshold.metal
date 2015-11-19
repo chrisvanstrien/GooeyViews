@@ -13,12 +13,12 @@ kernel void kernelThreshold(
     
     float interpolationRange = 0.0375;
 
-    float4 threshold = smoothstep(
+    float threshold = smoothstep(
         isolevel - interpolationRange,
         isolevel,
-        blendedSample);
+        blendedSample.a);
     
-    threshold.a = 1.0; // 
+    float4 final = float4(blendedSample.xyz, threshold);
     
-    thresholded.write(threshold, gid);
+    thresholded.write(final, gid);
 }

@@ -31,13 +31,4 @@ class UniformFactory {
         
         return buffer
     }
-    
-    func matrixIsoFactorBuffer(matrix matrix: CATransform3D, isoFactor: Float) -> MTLBuffer {
-        let matrixArray = MatrixFactory.array(matrix)
-        let appended = matrixArray + [isoFactor]
-        let size = appended.count * FLOAT_SIZE
-        let buffer = device.newBufferWithBytes(appended, length: size, options: [])
-
-        return buffer
-    }
 }

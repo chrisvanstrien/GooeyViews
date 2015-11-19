@@ -8,10 +8,6 @@ struct Transform {
     float4x4 transform;
 };
 
-struct IsoFactor {
-    float isoFactor;
-};
-
 struct VertexIn {
     packed_float2 position;
     packed_float2 uv;
@@ -27,7 +23,8 @@ struct FragmentIn {
 };
 
 struct FragmentOut {
-    float4 color [[color(0)]];
+    float4 distance [[color(0)]];
+    float4 weight [[color(1)]];
 };
 
 vertex VertexOut vertexBlend(
@@ -53,22 +50,25 @@ constexpr sampler simpleSampler(filter::linear);
 
 fragment FragmentOut fragmentBlend(
     FragmentIn fragmentIn [[stage_in]],
-    const device IsoFactor& uniforms [[buffer(0)]],
     texture2d<float, access::sample> distanceField [[texture(0)]],
-    float4 destination [[color(0)]]) {
+    texture2d<float, access::sample> colorMap [[texture(1)]],
+    float4 destination [[color(0)]],
+    float4 accumulatedWeight [[color(1)]]) {
 
-    float isoFactor = uniforms.isoFactor;
-    
     float2 uv = fragmentIn.uv;
     
-    // this is messed up // is it anymore?
     float4 distanceFieldSample = distanceField.sample(simpleSampler, uv);
-    float4 offsetDistance = saturate(pow(distanceFieldSample, 1 / isoFactor)); // saturate needed?
-    float4 color = 1 - (1 - offsetDistance) * (1 - destination);
+    float4 colorSample = colorMap.sample(simpleSampler, uv);
+
+    float4 distance;
+    distance.a = 1 - (1 - distanceFieldSample.r) * (1 - destination.a);
+    distance.rgb = colorSample.rgb;
+    
+    float4 weight = accumulatedWeight + distanceFieldSample;
     
     FragmentOut fragmentOut;
-    fragmentOut.color = color;
-    fragmentOut.color.a = 1; //
+    fragmentOut.distance = distance;
+    fragmentOut.weight = weight;
     
     return fragmentOut;
 }
