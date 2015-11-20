@@ -25,9 +25,10 @@ class ViewController: UIViewController {
     var displayPipelineState: MTLRenderPipelineState!
     var thresholdPipelineState: MTLComputePipelineState!
     
-    var colorTexture: MTLTexture!
+    var leatherTexture: MTLTexture!
+    var concreteTexture: MTLTexture!
     var heartTexture: MTLTexture!
-    var splatTexture: MTLTexture!
+    var arrowTexture: MTLTexture!
     
     var blendedTexture: MTLTexture!
     var accumulatedWeightTexture: MTLTexture!
@@ -88,12 +89,22 @@ class ViewController: UIViewController {
         do {
             let textureFactory = TextureFactory(device: device)
             
-            heartTexture = textureFactory.createTexture(filename: "arrow", render: false, read: true, write: false)
-            splatTexture = textureFactory.createTexture(filename: "heart", render: false, read: true, write: false)
-            colorTexture = textureFactory.createTexture(filename: "test", render: false, read: true, write: false)
+            heartTexture = textureFactory.createTexture(filename: "heart", render: false, read: true, write: false)
+            arrowTexture = textureFactory.createTexture(filename: "arrow", render: false, read: true, write: false)
+            concreteTexture = textureFactory.createTexture(filename: "concrete", render: false, read: true, write: false)
+            leatherTexture = textureFactory.createTexture(filename: "leather", render: false, read: true, write: false)
+            
+            // Input Color: 4 Channel, Normalized
+            // Input Distance: 1 Channel, Normalized
+            
+            // Accumulated Weight: 1 Channel, Float
+            // Color: 4 Channel, Normalized
+            // Distance: 1 Channel, Normalized
+            
+            // Threshold Target: 4 Channel, Normalized
             
             blendedTexture = textureFactory.createEmptyFloatTexture(width: screenSize.width, height: screenSize.height, render: true, read: true, write: false)
-            accumulatedWeightTexture = textureFactory.createEmptyFloatTexture(width: screenSize.width, height: screenSize.height, render: true, read: true, write: false)
+            accumulatedWeightTexture = textureFactory.createEmptySingleChannelFloatTexture(width: screenSize.width, height: screenSize.height, render: true, read: true, write: false)
             thresholdedTexture = textureFactory.createEmptyFloatTexture(width: screenSize.width, height: screenSize.height, render: false, read: true, write: true)
         }
         
@@ -116,7 +127,7 @@ class ViewController: UIViewController {
             descriptor.vertexFunction = vertexBlend
             descriptor.fragmentFunction = fragmentBlend
             descriptor.colorAttachments[0].pixelFormat = .RGBA16Float
-            descriptor.colorAttachments[1].pixelFormat = .RGBA16Float
+            descriptor.colorAttachments[1].pixelFormat = .R16Float
             
             return try! device.newRenderPipelineStateWithDescriptor(descriptor)
         }()
@@ -210,7 +221,7 @@ class ViewController: UIViewController {
     func step() {
     
         let time = NSDate().timeIntervalSince1970
-        let speed = time / 1.0
+        let speed = time / 2.0
         let second = fmod(speed, 1.0)
         let piFactor = M_PI * 2 * second
         let wave = CGFloat(sin(piFactor))
@@ -221,7 +232,7 @@ class ViewController: UIViewController {
             let translate = CATransform3DMakeTranslation(-0.35 + 0.15 * wave, 0, 0)
             let transform = CATransform3DConcat(scale, translate)
             
-            renderView(transform: transform, distanceMap: heartTexture, colorMap: colorTexture, first: true)
+            renderView(transform: transform, distanceMap: arrowTexture, colorMap: concreteTexture, first: true)
         }
         
         do {
@@ -231,7 +242,7 @@ class ViewController: UIViewController {
             let translate = CATransform3DMakeTranslation(0.3, 0, 0)
             let transform = CATransform3DConcat(scale, translate)
             
-            renderView(transform: transform, distanceMap: splatTexture, colorMap: colorTexture, first: false)
+            renderView(transform: transform, distanceMap: heartTexture, colorMap: leatherTexture, first: false)
         }
         // -----
         

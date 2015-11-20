@@ -30,6 +30,15 @@ class TextureFactory {
         return texture
     }
     
+    func createEmptySingleChannelFloatTexture(width width: Int, height: Int, render: Bool, read: Bool, write: Bool) -> MTLTexture {
+        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(MTLPixelFormat.R16Float, width: width, height: height, mipmapped: false)
+        textureDescriptor.usage = createUsage(render: render, read: read, write: write)
+        
+        let texture = device.newTextureWithDescriptor(textureDescriptor)
+        
+        return texture
+    }
+    
     func createEmptyTexture(width width: Int, height: Int, render: Bool, read: Bool, write: Bool) -> MTLTexture {
         let textureDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(MTLPixelFormat.RGBA8Unorm, width: width, height: height, mipmapped: false)
         textureDescriptor.usage = createUsage(render: render, read: read, write: write)

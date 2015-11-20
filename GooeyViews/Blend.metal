@@ -24,7 +24,7 @@ struct FragmentIn {
 
 struct FragmentOut {
     float4 distance [[color(0)]];
-    float4 weight [[color(1)]];
+    float weight [[color(1)]];
 };
 
 vertex VertexOut vertexBlend(
@@ -53,18 +53,20 @@ fragment FragmentOut fragmentBlend(
     texture2d<float, access::sample> distanceField [[texture(0)]],
     texture2d<float, access::sample> colorMap [[texture(1)]],
     float4 destination [[color(0)]],
-    float4 accumulatedWeight [[color(1)]]) {
+    float accumulatedWeight [[color(1)]]) {
 
     float2 uv = fragmentIn.uv;
     
     float4 distanceFieldSample = distanceField.sample(simpleSampler, uv);
     float4 colorSample = colorMap.sample(simpleSampler, uv);
 
-    float4 newAccumulatedWeight = accumulatedWeight + distanceFieldSample;
+    float newAccumulatedWeight = accumulatedWeight + distanceFieldSample.r;
     
-    float3 color = colorSample.rgb + destination.rgb;//((colorSample.rgb * distanceFieldSample.r) + (destination.rgb * accumulatedWeight.r)) / newAccumulatedWeight.r;
-
+    float mixFactor = clamp(distanceFieldSample.r / newAccumulatedWeight, 0.0, 1.0);
+    float3 color = mix(destination.rgb, colorSample.rgb, mixFactor);
+    
     float4 distance;
+    // Swap this to multiply when all the buffers are finalized
     distance.a = 1 - (1 - distanceFieldSample.r) * (1 - destination.a);
     distance.rgb = color;
     

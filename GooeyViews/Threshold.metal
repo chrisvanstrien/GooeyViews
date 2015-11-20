@@ -9,7 +9,9 @@ kernel void kernelThreshold(
     
     float4 blendedSample = blended.read(gid);
     
-    float isolevel = 0.5;
+    float errorMargin = 0.0375;
+    
+    float isolevel = 1 - errorMargin;
     
     float interpolationRange = 0.0375;
 
