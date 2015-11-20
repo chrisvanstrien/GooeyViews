@@ -116,7 +116,7 @@ class ViewController: UIViewController {
             descriptor.vertexFunction = vertexBlend
             descriptor.fragmentFunction = fragmentBlend
             descriptor.colorAttachments[0].pixelFormat = .RGBA16Float
-            descriptor.colorAttachments[1].pixelFormat = .RGBA16Float // weight
+            descriptor.colorAttachments[1].pixelFormat = .RGBA16Float
             
             return try! device.newRenderPipelineStateWithDescriptor(descriptor)
         }()
@@ -125,7 +125,18 @@ class ViewController: UIViewController {
             let descriptor = MTLRenderPipelineDescriptor()
             descriptor.vertexFunction = vertexDisplay
             descriptor.fragmentFunction = fragmentDisplay
-            descriptor.colorAttachments[0].pixelFormat = .BGRA8Unorm
+            
+            let attachment = descriptor.colorAttachments[0]
+            attachment.pixelFormat = .BGRA8Unorm
+            
+            // Do blending in shader, unless this is faster?
+            attachment.blendingEnabled = true
+            attachment.rgbBlendOperation = .Add
+            attachment.alphaBlendOperation = .Add
+            attachment.sourceRGBBlendFactor = .SourceAlpha
+            attachment.sourceAlphaBlendFactor = .SourceAlpha
+            attachment.destinationRGBBlendFactor = .OneMinusSourceAlpha
+            attachment.destinationAlphaBlendFactor = .OneMinusSourceAlpha
             
             return try! device.newRenderPipelineStateWithDescriptor(descriptor)
         }()
@@ -165,7 +176,7 @@ class ViewController: UIViewController {
                 color.loadAction = first ? .Clear : .Load
                 color.clearColor = clearColor
                 
-                let weight = descriptor.colorAttachments[1] // weight
+                let weight = descriptor.colorAttachments[1]
                 weight.texture = self.accumulatedWeightTexture
                 weight.loadAction = first ? .Clear : .Load
                 weight.clearColor = clearColor

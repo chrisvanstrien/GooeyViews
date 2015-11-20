@@ -60,15 +60,17 @@ fragment FragmentOut fragmentBlend(
     float4 distanceFieldSample = distanceField.sample(simpleSampler, uv);
     float4 colorSample = colorMap.sample(simpleSampler, uv);
 
+    float4 newAccumulatedWeight = accumulatedWeight + distanceFieldSample;
+    
+    float3 color = colorSample.rgb + destination.rgb;//((colorSample.rgb * distanceFieldSample.r) + (destination.rgb * accumulatedWeight.r)) / newAccumulatedWeight.r;
+
     float4 distance;
     distance.a = 1 - (1 - distanceFieldSample.r) * (1 - destination.a);
-    distance.rgb = colorSample.rgb;
-    
-    float4 weight = accumulatedWeight + distanceFieldSample;
+    distance.rgb = color;
     
     FragmentOut fragmentOut;
     fragmentOut.distance = distance;
-    fragmentOut.weight = weight;
+    fragmentOut.weight = newAccumulatedWeight;
     
     return fragmentOut;
 }

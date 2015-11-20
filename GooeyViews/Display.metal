@@ -54,9 +54,6 @@ fragment FragmentOut fragmentDisplay(
 
     float4 filteredSample = filtered.sample(simpleSampler, uv);
     
-    // Hack replacement for true alpha blending
-    if (filteredSample.a < 0.05) { discard_fragment(); }
-    
     FragmentOut fragmentOut;
     fragmentOut.color = filteredSample;
     
