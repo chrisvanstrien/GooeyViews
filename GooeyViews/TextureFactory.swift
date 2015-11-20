@@ -10,45 +10,27 @@ class TextureFactory {
     }
     
     func createUsage(render render: Bool, read: Bool, write: Bool) -> MTLTextureUsage {
-        let renderBits = render ? MTLTextureUsage.RenderTarget.rawValue : 0b0
-        let readBits = read ? MTLTextureUsage.ShaderRead.rawValue : 0b0
-        let writeBits = write ? MTLTextureUsage.ShaderWrite.rawValue : 0b0
-        
-        let combinedBits = renderBits | readBits | writeBits
+        let combinedBits: UInt = {
+            let renderBits = render ? MTLTextureUsage.RenderTarget.rawValue : 0b0
+            let readBits = read ? MTLTextureUsage.ShaderRead.rawValue : 0b0
+            let writeBits = write ? MTLTextureUsage.ShaderWrite.rawValue : 0b0
+            
+            return renderBits | readBits | writeBits
+        }()
         
         let usage = MTLTextureUsage(rawValue: combinedBits)
         
         return usage
     }
     
-    func createEmptyFloatTexture(width width: Int, height: Int, render: Bool, read: Bool, write: Bool) -> MTLTexture {
-        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(MTLPixelFormat.RGBA16Float, width: width, height: height, mipmapped: false)
+    func createEmptyTexture(width width: Int, height: Int, format: MTLPixelFormat, render: Bool, read: Bool, write: Bool) -> MTLTexture {
+        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(format, width: width, height: height, mipmapped: false)
         textureDescriptor.usage = createUsage(render: render, read: read, write: write)
         
-        let texture = device.newTextureWithDescriptor(textureDescriptor)
-        
-        return texture
+        return device.newTextureWithDescriptor(textureDescriptor)
     }
     
-    func createEmptySingleChannelFloatTexture(width width: Int, height: Int, render: Bool, read: Bool, write: Bool) -> MTLTexture {
-        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(MTLPixelFormat.R16Float, width: width, height: height, mipmapped: false)
-        textureDescriptor.usage = createUsage(render: render, read: read, write: write)
-        
-        let texture = device.newTextureWithDescriptor(textureDescriptor)
-        
-        return texture
-    }
-    
-    func createEmptyTexture(width width: Int, height: Int, render: Bool, read: Bool, write: Bool) -> MTLTexture {
-        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptorWithPixelFormat(MTLPixelFormat.RGBA8Unorm, width: width, height: height, mipmapped: false)
-        textureDescriptor.usage = createUsage(render: render, read: read, write: write)
-        
-        let texture = device.newTextureWithDescriptor(textureDescriptor)
-        
-        return texture
-    }
-    
-    func createTexture(filename filename: String, render: Bool, read: Bool, write: Bool) -> MTLTexture {
+    func createTextureFromFile(filename filename: String, render: Bool, read: Bool, write: Bool) -> MTLTexture {
         let loader = MTKTextureLoader(device: device)
         
         let usage = createUsage(render: render, read: read, write: write)
@@ -60,7 +42,8 @@ class TextureFactory {
         return texture
     }
     
-    func createCubeMap(filenames filenames: [String], read: Bool, write: Bool) -> MTLTexture { // [+X, -X, +Y, -Y, +Z, -Z]
+    // use tuple for filenames
+    func createCubeMapFromFiles(filenames filenames: [String], read: Bool, write: Bool) -> MTLTexture { // [+X, -X, +Y, -Y, +Z, -Z]
         let bytesPerPixel = 4
         let bitsPerComponent = 8
         let width = 512

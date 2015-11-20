@@ -2,25 +2,27 @@
 
 using namespace metal;
 
+constexpr constant float ISOLEVEL_ERROR_MARGIN = 0.0375;
+
+constexpr constant float ISOLEVEL = 1 - ISOLEVEL_ERROR_MARGIN;
+
+constexpr constant float INTERPOLATION_RANGE = 0.0375;
+
 kernel void kernelThreshold(
-    texture2d<float, access::read> blended [[texture(0)]],
+    texture2d<float, access::read> accumulatedColor [[texture(0)]],
     texture2d<float, access::write> thresholded [[texture(1)]],
+    texture2d<float, access::read> accumulatedDistance [[texture(2)]],
     uint2 gid [[thread_position_in_grid]]) {
     
-    float4 blendedSample = blended.read(gid);
+    float4 colorSample = accumulatedColor.read(gid);
+    float distanceSample = accumulatedDistance.read(gid).x; // x?
     
-    float errorMargin = 0.0375;
-    
-    float isolevel = 1 - errorMargin;
-    
-    float interpolationRange = 0.0375;
-
     float threshold = smoothstep(
-        isolevel - interpolationRange,
-        isolevel,
-        blendedSample.a);
+        ISOLEVEL - INTERPOLATION_RANGE,
+        ISOLEVEL,
+        distanceSample);
     
-    float4 final = float4(blendedSample.xyz, threshold);
+    float4 final = float4(colorSample.rgb, colorSample.a * threshold); // Just multiplying these is wrong?
     
     thresholded.write(final, gid);
 }

@@ -4,8 +4,15 @@ import QuartzCore
 import MetalKit
 
 // matrices only need to hold 2d transform
-// uvs can be infered based on local vertex positions
+// uvs can be infered based on model vertex positions
 // gooeyness factor, runtime property, raises texture to a power, scaling back outer glow
+
+// Input Color: 4 Channel, Normalized // Done, but currently ignoring A channel in shaders
+// Input Distance: 1 Channel, Normalized // Currently 4 channel, but only making use of R channel
+// Accumulated Weight: 1 Channel, Float // Done
+// Color: 4 Channel, Normalized // Done, but currently ignoring A channel in shaders
+// Distance: 1 Channel, Normalized // Done
+// Threshold Target: 4 Channel, Normalized // Done
 
 class ViewController: UIViewController {
 
@@ -25,18 +32,21 @@ class ViewController: UIViewController {
     var displayPipelineState: MTLRenderPipelineState!
     var thresholdPipelineState: MTLComputePipelineState!
     
+    var alphaLeatherTexture: MTLTexture!
     var leatherTexture: MTLTexture!
     var concreteTexture: MTLTexture!
     var heartTexture: MTLTexture!
     var arrowTexture: MTLTexture!
     
-    var blendedTexture: MTLTexture!
     var accumulatedWeightTexture: MTLTexture!
+    var accumulatedColorTexture: MTLTexture!
+    var accumulatedDistanceTexture: MTLTexture!
+    
     var thresholdedTexture: MTLTexture!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         device = MTLCreateSystemDefaultDevice()
         
         commandQueue = device.newCommandQueue()
@@ -89,35 +99,29 @@ class ViewController: UIViewController {
         do {
             let textureFactory = TextureFactory(device: device)
             
-            heartTexture = textureFactory.createTexture(filename: "heart", render: false, read: true, write: false)
-            arrowTexture = textureFactory.createTexture(filename: "arrow", render: false, read: true, write: false)
-            concreteTexture = textureFactory.createTexture(filename: "concrete", render: false, read: true, write: false)
-            leatherTexture = textureFactory.createTexture(filename: "leather", render: false, read: true, write: false)
+            alphaLeatherTexture = textureFactory.createTextureFromFile(filename: "alphaleather", render: false, read: true, write: false)
+            heartTexture = textureFactory.createTextureFromFile(filename: "heart", render: false, read: true, write: false)
+            arrowTexture = textureFactory.createTextureFromFile(filename: "arrow", render: false, read: true, write: false)
+            concreteTexture = textureFactory.createTextureFromFile(filename: "concrete", render: false, read: true, write: false)
+            leatherTexture = textureFactory.createTextureFromFile(filename: "leather", render: false, read: true, write: false)
             
-            // Input Color: 4 Channel, Normalized
-            // Input Distance: 1 Channel, Normalized
+            accumulatedWeightTexture = textureFactory.createEmptyTexture(width: screenSize.width, height: screenSize.height, format: .R16Float, render: true, read: true, write: false)
+            accumulatedColorTexture = textureFactory.createEmptyTexture(width: screenSize.width, height: screenSize.height, format: .RGBA8Unorm, render: true, read: true, write: false)
+            accumulatedDistanceTexture = textureFactory.createEmptyTexture(width: screenSize.width, height: screenSize.height, format: .R8Unorm, render: true, read: true, write: false)
             
-            // Accumulated Weight: 1 Channel, Float
-            // Color: 4 Channel, Normalized
-            // Distance: 1 Channel, Normalized
-            
-            // Threshold Target: 4 Channel, Normalized
-            
-            blendedTexture = textureFactory.createEmptyFloatTexture(width: screenSize.width, height: screenSize.height, render: true, read: true, write: false)
-            accumulatedWeightTexture = textureFactory.createEmptySingleChannelFloatTexture(width: screenSize.width, height: screenSize.height, render: true, read: true, write: false)
-            thresholdedTexture = textureFactory.createEmptyFloatTexture(width: screenSize.width, height: screenSize.height, render: false, read: true, write: true)
+            thresholdedTexture = textureFactory.createEmptyTexture(width: screenSize.width, height: screenSize.height, format: .RGBA8Unorm, render: false, read: true, write: true)
         }
         
         // Shaders -----
         let library = device.newDefaultLibrary()
         
-        let fragmentBlend = library!.newFunctionWithName("fragmentBlend")
-        let vertexBlend = library!.newFunctionWithName("vertexBlend")
+        let fragmentBlend = library!.newFunctionWithName("fragmentBlend") // Have defines for all kernel handles.
+        let vertexBlend = library!.newFunctionWithName("vertexBlend") //
         
-        let fragmentDisplay = library!.newFunctionWithName("fragmentDisplay")
-        let vertexDisplay = library!.newFunctionWithName("vertexDisplay")
+        let fragmentDisplay = library!.newFunctionWithName("fragmentDisplay") //
+        let vertexDisplay = library!.newFunctionWithName("vertexDisplay") //
         
-        let kernelThreshold = library!.newFunctionWithName("kernelThreshold")
+        let kernelThreshold = library!.newFunctionWithName("kernelThreshold") //
         // -----
         
         try! thresholdPipelineState = device.newComputePipelineStateWithFunction(kernelThreshold!)
@@ -126,8 +130,9 @@ class ViewController: UIViewController {
             let descriptor = MTLRenderPipelineDescriptor()
             descriptor.vertexFunction = vertexBlend
             descriptor.fragmentFunction = fragmentBlend
-            descriptor.colorAttachments[0].pixelFormat = .RGBA16Float
+            descriptor.colorAttachments[0].pixelFormat = .RGBA8Unorm
             descriptor.colorAttachments[1].pixelFormat = .R16Float
+            descriptor.colorAttachments[2].pixelFormat = .R8Unorm
             
             return try! device.newRenderPipelineStateWithDescriptor(descriptor)
         }()
@@ -183,7 +188,7 @@ class ViewController: UIViewController {
                 let descriptor = MTLRenderPassDescriptor()
                 
                 let color = descriptor.colorAttachments[0]
-                color.texture = self.blendedTexture
+                color.texture = self.accumulatedColorTexture
                 color.loadAction = first ? .Clear : .Load
                 color.clearColor = clearColor
                 
@@ -191,6 +196,11 @@ class ViewController: UIViewController {
                 weight.texture = self.accumulatedWeightTexture
                 weight.loadAction = first ? .Clear : .Load
                 weight.clearColor = clearColor
+                
+                let distance = descriptor.colorAttachments[2]
+                distance.texture = self.accumulatedDistanceTexture
+                distance.loadAction = first ? .Clear : .Load
+                distance.clearColor = clearColor
                 
                 return descriptor
             }()
@@ -221,7 +231,7 @@ class ViewController: UIViewController {
     func step() {
     
         let time = NSDate().timeIntervalSince1970
-        let speed = time / 2.0
+        let speed = time / 4.0
         let second = fmod(speed, 1.0)
         let piFactor = M_PI * 2 * second
         let wave = CGFloat(sin(piFactor))
@@ -233,6 +243,16 @@ class ViewController: UIViewController {
             let transform = CATransform3DConcat(scale, translate)
             
             renderView(transform: transform, distanceMap: arrowTexture, colorMap: concreteTexture, first: true)
+        }
+        
+        do {
+            let scaleWave = (wave + 1) / 2
+
+            let scale = CATransform3DMakeScale(0.5, 0.25, 1)
+            let translate = CATransform3DMakeTranslation(0, -0.5 + 0.75 * scaleWave, 0)
+            let transform = CATransform3DConcat(scale, translate)
+            
+            renderView(transform: transform, distanceMap: heartTexture, colorMap: leatherTexture, first: false)
         }
         
         do {
@@ -253,8 +273,9 @@ class ViewController: UIViewController {
             do {
                 let encoder = command.computeCommandEncoder()
                 encoder.setComputePipelineState(thresholdPipelineState)
-                encoder.setTexture(blendedTexture, atIndex: 0)
+                encoder.setTexture(accumulatedColorTexture, atIndex: 0)
                 encoder.setTexture(thresholdedTexture, atIndex: 1)
+                encoder.setTexture(accumulatedDistanceTexture, atIndex: 2)
                 encoder.dispatchThreadgroups(threadGroupCount, threadsPerThreadgroup: threadGroupSize)
                 
                 encoder.endEncoding()

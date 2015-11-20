@@ -11,6 +11,9 @@
 		8376A73C1BFEF94C00227D74 /* leather.png in Resources */ = {isa = PBXBuildFile; fileRef = 8376A73A1BFEF94C00227D74 /* leather.png */; };
 		8376A73F1BFFB18800227D74 /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 8376A73D1BFFB18800227D74 /* arrow.png */; };
 		8376A7421BFFB3AB00227D74 /* heart.png in Resources */ = {isa = PBXBuildFile; fileRef = 8376A7411BFFB3AB00227D74 /* heart.png */; };
+		8376A7471BFFCEB200227D74 /* alphaleather.png in Resources */ = {isa = PBXBuildFile; fileRef = 8376A7461BFFCEB200227D74 /* alphaleather.png */; };
+		8383983D1C0EC27A00D6BAC1 /* ContainerLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8383983C1C0EC27A00D6BAC1 /* ContainerLayer.swift */; };
+		8383983F1C0EC28800D6BAC1 /* SubLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8383983E1C0EC28800D6BAC1 /* SubLayer.swift */; };
 		838EB76F1BFDCF7C0042C8AA /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 838EB76E1BFDCF7C0042C8AA /* test.png */; };
 		839A190A1BFB27EF000B9D03 /* Threshold.metal in Sources */ = {isa = PBXBuildFile; fileRef = 839A19091BFB27EF000B9D03 /* Threshold.metal */; };
 		83E370BF1BFAD8C700BCABAC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E370BE1BFAD8C700BCABAC /* AppDelegate.swift */; };
@@ -31,6 +34,9 @@
 		8376A73A1BFEF94C00227D74 /* leather.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = leather.png; sourceTree = "<group>"; };
 		8376A73D1BFFB18800227D74 /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow.png; sourceTree = "<group>"; };
 		8376A7411BFFB3AB00227D74 /* heart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = heart.png; sourceTree = "<group>"; };
+		8376A7461BFFCEB200227D74 /* alphaleather.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = alphaleather.png; sourceTree = "<group>"; };
+		8383983C1C0EC27A00D6BAC1 /* ContainerLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerLayer.swift; sourceTree = "<group>"; };
+		8383983E1C0EC28800D6BAC1 /* SubLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubLayer.swift; sourceTree = "<group>"; };
 		838EB76E1BFDCF7C0042C8AA /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test.png; sourceTree = "<group>"; };
 		839A19091BFB27EF000B9D03 /* Threshold.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Threshold.metal; sourceTree = "<group>"; };
 		83E370BB1BFAD8C700BCABAC /* GooeyViews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GooeyViews.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -61,9 +67,29 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		838398401C0EC29B00D6BAC1 /* Factories */ = {
+			isa = PBXGroup;
+			children = (
+				83E370DA1BFAE47300BCABAC /* TextureFactory.swift */,
+				83E370DC1BFAE96800BCABAC /* MatrixFactory.swift */,
+				83E370DE1BFAE97800BCABAC /* UniformFactory.swift */,
+			);
+			name = Factories;
+			sourceTree = "<group>";
+		};
+		838398411C0EC2B600D6BAC1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				8383983C1C0EC27A00D6BAC1 /* ContainerLayer.swift */,
+				8383983E1C0EC28800D6BAC1 /* SubLayer.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
 		839A19061BFB276B000B9D03 /* Textures */ = {
 			isa = PBXGroup;
 			children = (
+				8376A7461BFFCEB200227D74 /* alphaleather.png */,
 				8376A7411BFFB3AB00227D74 /* heart.png */,
 				8376A73D1BFFB18800227D74 /* arrow.png */,
 				8376A7391BFEF94C00227D74 /* concrete.png */,
@@ -115,13 +141,12 @@
 		83E370BD1BFAD8C700BCABAC /* GooeyViews */ = {
 			isa = PBXGroup;
 			children = (
+				838398411C0EC2B600D6BAC1 /* Views */,
+				838398401C0EC29B00D6BAC1 /* Factories */,
 				839A19081BFB2784000B9D03 /* Junk */,
 				839A19071BFB277B000B9D03 /* Shaders */,
 				839A19061BFB276B000B9D03 /* Textures */,
 				83E370C01BFAD8C700BCABAC /* ViewController.swift */,
-				83E370DA1BFAE47300BCABAC /* TextureFactory.swift */,
-				83E370DC1BFAE96800BCABAC /* MatrixFactory.swift */,
-				83E370DE1BFAE97800BCABAC /* UniformFactory.swift */,
 			);
 			path = GooeyViews;
 			sourceTree = "<group>";
@@ -190,6 +215,7 @@
 				838EB76F1BFDCF7C0042C8AA /* test.png in Resources */,
 				8376A7421BFFB3AB00227D74 /* heart.png in Resources */,
 				83E370C41BFAD8C700BCABAC /* Main.storyboard in Resources */,
+				8376A7471BFFCEB200227D74 /* alphaleather.png in Resources */,
 				8376A73B1BFEF94C00227D74 /* concrete.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -203,12 +229,14 @@
 			files = (
 				83E370DB1BFAE47300BCABAC /* TextureFactory.swift in Sources */,
 				83E370DF1BFAE97800BCABAC /* UniformFactory.swift in Sources */,
+				8383983D1C0EC27A00D6BAC1 /* ContainerLayer.swift in Sources */,
 				83E370D51BFAE10600BCABAC /* Blend.metal in Sources */,
 				839A190A1BFB27EF000B9D03 /* Threshold.metal in Sources */,
 				83E370C11BFAD8C700BCABAC /* ViewController.swift in Sources */,
 				83E370E11BFB132700BCABAC /* Display.metal in Sources */,
 				83E370DD1BFAE96800BCABAC /* MatrixFactory.swift in Sources */,
 				83E370BF1BFAD8C700BCABAC /* AppDelegate.swift in Sources */,
+				8383983F1C0EC28800D6BAC1 /* SubLayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -321,10 +349,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = GooeyViews/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = ChrisVanstrien.GooeyViews;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -332,10 +363,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = GooeyViews/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = ChrisVanstrien.GooeyViews;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
 			};
 			name = Release;
 		};
