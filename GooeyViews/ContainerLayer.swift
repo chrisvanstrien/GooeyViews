@@ -10,6 +10,7 @@ class ContainerLayer: CAMetalLayer {
     var threadGroupCount: MTLSize!
     
     var attributeBuffer: MTLBuffer!
+    var subAttributeBuffer: MTLBuffer!
     var indicesBuffer: MTLBuffer!
     
     var blendPipelineState: MTLRenderPipelineState!
@@ -27,8 +28,6 @@ class ContainerLayer: CAMetalLayer {
     // needsDisplayOnBoundsChange
     // Check for divisions by zero
     // take transform and anchor point into account
-    // change view transform to map from CA space to MTL space
-    // change quad vertices to have top left origin
     // use get position in view to support nested views
     // take sublayer transforms into consideration
     
@@ -46,6 +45,8 @@ class ContainerLayer: CAMetalLayer {
     
     func setup() {
         
+        opaque = false
+        
         commandQueue = device!.newCommandQueue()
         
         attributeBuffer = {
@@ -60,6 +61,19 @@ class ContainerLayer: CAMetalLayer {
             return device!.newBufferWithBytes(attributes, length: attributeSize, options: [])
         
         }()
+        
+        subAttributeBuffer = {
+            let attributes: [Float] = [
+                0, 1,   0, 1,
+                1, 1,   1, 1,
+                1, 0,   1, 0,
+                0, 0,   0, 0]
+            
+            let attributeSize = attributes.count * sizeof(Float)
+            
+            return device!.newBufferWithBytes(attributes, length: attributeSize, options: [])
+            
+            }()
         
         indicesBuffer = {
             let indices: [UInt16] = [
@@ -191,7 +205,7 @@ class ContainerLayer: CAMetalLayer {
             
             let encoder = command.renderCommandEncoderWithDescriptor(renderPassDescriptor)
             encoder.setRenderPipelineState(self.blendPipelineState)
-            encoder.setVertexBuffer(self.attributeBuffer, offset: 0, atIndex: 0) // use set buffers
+            encoder.setVertexBuffer(self.subAttributeBuffer, offset: 0, atIndex: 0) // use set buffers
             encoder.setVertexBuffer(transformUniformBuffer, offset: 0, atIndex: 1) // use set buffers
             encoder.setFragmentTexture(distanceMap, atIndex: 0)
             encoder.setFragmentTexture(colorMap, atIndex: 1)
@@ -213,11 +227,11 @@ class ContainerLayer: CAMetalLayer {
         // Blend -----
         for (index, element) in sublayers!.enumerate() {
             if let subLayer = element as? SubLayer {
-                let width = CGRectGetWidth(subLayer.bounds) / CGRectGetWidth(bounds)
-                let height = CGRectGetHeight(subLayer.bounds) / CGRectGetHeight(bounds)
+                let width = 2 * CGRectGetWidth(subLayer.bounds) / CGRectGetWidth(bounds)
+                let height = 2 * CGRectGetHeight(subLayer.bounds) / CGRectGetHeight(bounds)
                             
-                let x: CGFloat = -1.0 + width + CGRectGetMinX(subLayer.frame)/CGRectGetWidth(bounds)*2
-                let y: CGFloat = -1.0 + height + CGRectGetMinY(subLayer.frame)/CGRectGetHeight(bounds)*2
+                let x: CGFloat = -1.0 + CGRectGetMinX(subLayer.frame)/CGRectGetWidth(bounds)*2
+                let y: CGFloat = -1.0 + CGRectGetMinY(subLayer.frame)/CGRectGetHeight(bounds)*2
                 
                 let scale = CATransform3DMakeScale(width, height, 1)
                 let translate = CATransform3DMakeTranslation(x, y, 0)

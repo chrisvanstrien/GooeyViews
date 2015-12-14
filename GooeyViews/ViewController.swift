@@ -24,10 +24,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor.greenColor()
+        view.backgroundColor = UIColor.blackColor()
         
         let container = ContainerLayer()
-        container.frame = CGRect(x: 0, y: 0, width: 256, height: 256)
+        container.frame = view.bounds
         container.setup()
         
         let textureFactory = TextureFactory(device: container.device!)
@@ -41,22 +41,22 @@ class ViewController: UIViewController {
         sub.frame = CGRect(x: 0, y: 0, width: 128, height: 128)
         sub.distanceTexture = heartTexture
         sub.colorTexture = leatherTexture
-        //sub.backgroundColor = UIColor.blueColor().CGColor
-        //sub.opacity = 0.5
         container.addSublayer(sub)
         
         let sub2 = SubLayer();
-        sub2.frame = CGRect(x: 32, y: 64, width: 128, height: 128)
+        sub2.frame = CGRect(x: 0, y: 0, width: 64, height: 64)
         sub2.distanceTexture = heartTexture
         sub2.colorTexture = concreteTexture
-        //sub2.backgroundColor = UIColor.redColor().CGColor
-        //sub2.opacity = 0.5
         container.addSublayer(sub2)
         
-        // ffs it says this defaults to false
-        container.opaque = false
-        
         view.layer.addSublayer(container)
+        
+        sub.opacity = 0.1
+        sub2.opacity = 0.1
+
+        container.backgroundColor = UIColor.whiteColor().CGColor
+        sub.backgroundColor = UIColor.blackColor().CGColor
+        sub2.backgroundColor = UIColor.blackColor().CGColor
     }
 }
 
