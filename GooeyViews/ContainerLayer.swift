@@ -16,12 +16,6 @@ class ContainerLayer: CAMetalLayer {
     var displayPipelineState: MTLRenderPipelineState!
     var thresholdPipelineState: MTLComputePipelineState!
     
-    var alphaLeatherTexture: MTLTexture!
-    var leatherTexture: MTLTexture!
-    var concreteTexture: MTLTexture!
-    var heartTexture: MTLTexture!
-    var arrowTexture: MTLTexture!
-    
     var accumulatedWeightTexture: MTLTexture!
     var accumulatedColorTexture: MTLTexture!
     var accumulatedDistanceTexture: MTLTexture!
@@ -31,19 +25,21 @@ class ContainerLayer: CAMetalLayer {
     // On resize, resize the texture
     // setNeedsDisplay
     // needsDisplayOnBoundsChange
-    
-    // dont use screen size, use view size now
-    
+    // Check for divisions by zero
+    // take transform and anchor point into account
+    // change view transform to map from CA space to MTL space
+    // change quad vertices to have top left origin
+        
     override init() {
         super.init()
         
-        setup()
+        //setup()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
-        setup()
+        //setup()
     }
     
     func setup() {
@@ -73,42 +69,25 @@ class ContainerLayer: CAMetalLayer {
             return device!.newBufferWithBytes(indices, length: indicesSize, options: [])
         }()
         
-        let screenPixelSize: CGSize = {
+        let layerPixelSize: CGSize = {
             let screen = UIScreen.mainScreen()
-            let screenPointSize = screen.bounds
             let screenScale = screen.scale
             
-            return CGSize(width: screenPointSize.width * screenScale, height: screenPointSize.height * screenScale)
+            return CGSize(width: bounds.width * screenScale, height: bounds.height * screenScale)
         }()
         
-        let screenSize = MTLSize(width: Int(screenPixelSize.width), height: Int(screenPixelSize.height), depth: 1)
+        let layerSize = MTLSize(width: Int(layerPixelSize.width), height: Int(layerPixelSize.height), depth: 1)
         
-        // might need to modify metal layer drawable size to account for retina if it doesn't automaticly
-//        metalLayer = {
-//            let layer = CAMetalLayer()
-//            layer.device = device
-//            layer.pixelFormat = .BGRA8Unorm
-//            layer.framebufferOnly = true
-//            layer.frame = view.layer.bounds
-//            layer.drawableSize = screenPixelSize
-//            
-//            return layer
-//        }()
+        drawableSize = layerPixelSize
         
         do {
             let textureFactory = TextureFactory(device: device!)
             
-            alphaLeatherTexture = textureFactory.createTextureFromFile(filename: "alphaleather", render: false, read: true, write: false)
-            heartTexture = textureFactory.createTextureFromFile(filename: "heart", render: false, read: true, write: false)
-            arrowTexture = textureFactory.createTextureFromFile(filename: "arrow", render: false, read: true, write: false)
-            concreteTexture = textureFactory.createTextureFromFile(filename: "concrete", render: false, read: true, write: false)
-            leatherTexture = textureFactory.createTextureFromFile(filename: "leather", render: false, read: true, write: false)
+            accumulatedWeightTexture = textureFactory.createEmptyTexture(width: layerSize.width, height: layerSize.height, format: .R16Float, render: true, read: true, write: false)
+            accumulatedColorTexture = textureFactory.createEmptyTexture(width: layerSize.width, height: layerSize.height, format: .RGBA8Unorm, render: true, read: true, write: false)
+            accumulatedDistanceTexture = textureFactory.createEmptyTexture(width: layerSize.width, height: layerSize.height, format: .R8Unorm, render: true, read: true, write: false)
             
-            accumulatedWeightTexture = textureFactory.createEmptyTexture(width: screenSize.width, height: screenSize.height, format: .R16Float, render: true, read: true, write: false)
-            accumulatedColorTexture = textureFactory.createEmptyTexture(width: screenSize.width, height: screenSize.height, format: .RGBA8Unorm, render: true, read: true, write: false)
-            accumulatedDistanceTexture = textureFactory.createEmptyTexture(width: screenSize.width, height: screenSize.height, format: .R8Unorm, render: true, read: true, write: false)
-            
-            thresholdedTexture = textureFactory.createEmptyTexture(width: screenSize.width, height: screenSize.height, format: .RGBA8Unorm, render: false, read: true, write: true)
+            thresholdedTexture = textureFactory.createEmptyTexture(width: layerSize.width, height: layerSize.height, format: .RGBA8Unorm, render: false, read: true, write: true)
         }
         
         // Shaders -----
@@ -160,11 +139,11 @@ class ContainerLayer: CAMetalLayer {
         
         // Are the additionals needed?
         threadGroupCount = {
-            let widthAdditional = min(screenSize.width % threadGroupSize.width, 1)
-            let widthCount = screenSize.width/threadGroupSize.width + widthAdditional
+            let widthAdditional = min(layerSize.width % threadGroupSize.width, 1)
+            let widthCount = layerSize.width/threadGroupSize.width + widthAdditional
             
-            let heightAdditional = min(screenSize.height % threadGroupSize.height, 1)
-            let heightCount = screenSize.height/threadGroupSize.height + heightAdditional
+            let heightAdditional = min(layerSize.height % threadGroupSize.height, 1)
+            let heightCount = layerSize.height/threadGroupSize.height + heightAdditional
             
             return MTLSize(width: widthCount, height: heightCount, depth: 1)
             }()
@@ -229,39 +208,32 @@ class ContainerLayer: CAMetalLayer {
     
     func step() {
         
-        let time = NSDate().timeIntervalSince1970
-        let speed = time / 4.0
-        let second = fmod(speed, 1.0)
-        let piFactor = M_PI * 2 * second
-        let wave = CGFloat(sin(piFactor))
-        
         // Blend -----
-        do {
-            let scale = CATransform3DMakeScale(0.5, 0.25, 1)
-            let translate = CATransform3DMakeTranslation(-0.35 + 0.15 * wave, 0, 0)
-            let transform = CATransform3DConcat(scale, translate)
-            
-            renderView(transform: transform, distanceMap: arrowTexture, colorMap: concreteTexture, first: true)
-        }
+    
+        // do first better
+        var first = true
         
-        do {
-            let scaleWave = (wave + 1) / 2
+        for subLayer in sublayers! {
             
-            let scale = CATransform3DMakeScale(0.5, 0.25, 1)
-            let translate = CATransform3DMakeTranslation(0, -0.5 + 0.75 * scaleWave, 0)
-            let transform = CATransform3DConcat(scale, translate)
+            // use get position in view to support nested views
+            // take transforms into consideration
+            // do this by passing transforms to shaders
             
-            renderView(transform: transform, distanceMap: heartTexture, colorMap: leatherTexture, first: false)
-        }
-        
-        do {
-            let scaleWave = (wave + 1) / 4 + 0.5
-            
-            let scale = CATransform3DMakeScale(0.5 * scaleWave, 0.25 * scaleWave, 1)
-            let translate = CATransform3DMakeTranslation(0.3, 0, 0)
-            let transform = CATransform3DConcat(scale, translate)
-            
-            renderView(transform: transform, distanceMap: heartTexture, colorMap: leatherTexture, first: false)
+            if let gooeySubLayer = subLayer as? SubLayer {
+                let width = CGRectGetWidth(subLayer.bounds) / CGRectGetWidth(bounds)
+                let height = CGRectGetHeight(subLayer.bounds) / CGRectGetHeight(bounds)
+                            
+                let x: CGFloat = -1.0 + width + CGRectGetMinX(subLayer.frame)/CGRectGetWidth(bounds)*2
+                let y: CGFloat = -1.0 + height + CGRectGetMinY(subLayer.frame)/CGRectGetHeight(bounds)*2
+                
+                let scale = CATransform3DMakeScale(width, height, 1)
+                let translate = CATransform3DMakeTranslation(x, y, 0)
+                let transform = CATransform3DConcat(scale, translate)
+
+                renderView(transform: transform, distanceMap: gooeySubLayer.distanceTexture, colorMap: gooeySubLayer.colorTexture, first: first)
+                
+                first = false
+            }
         }
         // -----
         
