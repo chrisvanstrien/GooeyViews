@@ -29,7 +29,9 @@ class ContainerLayer: CAMetalLayer {
     // take transform and anchor point into account
     // change view transform to map from CA space to MTL space
     // change quad vertices to have top left origin
-        
+    // use get position in view to support nested views
+    // take sublayer transforms into consideration
+    
     override init() {
         super.init()
         
@@ -90,50 +92,50 @@ class ContainerLayer: CAMetalLayer {
             thresholdedTexture = textureFactory.createEmptyTexture(width: layerSize.width, height: layerSize.height, format: .RGBA8Unorm, render: false, read: true, write: true)
         }
         
-        // Shaders -----
-        let library = device!.newDefaultLibrary()
-        
-        let fragmentBlend = library!.newFunctionWithName("fragmentBlend") // Have defines for all kernel handles.
-        let vertexBlend = library!.newFunctionWithName("vertexBlend") //
-        
-        let fragmentDisplay = library!.newFunctionWithName("fragmentDisplay") //
-        let vertexDisplay = library!.newFunctionWithName("vertexDisplay") //
-        
-        let kernelThreshold = library!.newFunctionWithName("kernelThreshold") //
-        // -----
-        
-        try! thresholdPipelineState = device!.newComputePipelineStateWithFunction(kernelThreshold!)
-        
-        blendPipelineState = {
-            let descriptor = MTLRenderPipelineDescriptor()
-            descriptor.vertexFunction = vertexBlend
-            descriptor.fragmentFunction = fragmentBlend
-            descriptor.colorAttachments[0].pixelFormat = .RGBA8Unorm
-            descriptor.colorAttachments[1].pixelFormat = .R16Float
-            descriptor.colorAttachments[2].pixelFormat = .R8Unorm
+        do {
+            let library = device!.newDefaultLibrary()
             
-            return try! device!.newRenderPipelineStateWithDescriptor(descriptor)
-        }()
-        
-        displayPipelineState = {
-            let descriptor = MTLRenderPipelineDescriptor()
-            descriptor.vertexFunction = vertexDisplay
-            descriptor.fragmentFunction = fragmentDisplay
+            let fragmentBlend = library!.newFunctionWithName("fragmentBlend") // Have defines for all kernel handles.
+            let vertexBlend = library!.newFunctionWithName("vertexBlend") //
             
-            let attachment = descriptor.colorAttachments[0]
-            attachment.pixelFormat = .BGRA8Unorm
+            let fragmentDisplay = library!.newFunctionWithName("fragmentDisplay") //
+            let vertexDisplay = library!.newFunctionWithName("vertexDisplay") //
             
-            // Do blending in shader, unless this is faster?
-            attachment.blendingEnabled = true
-            attachment.rgbBlendOperation = .Add
-            attachment.alphaBlendOperation = .Add
-            attachment.sourceRGBBlendFactor = .SourceAlpha
-            attachment.sourceAlphaBlendFactor = .SourceAlpha
-            attachment.destinationRGBBlendFactor = .OneMinusSourceAlpha
-            attachment.destinationAlphaBlendFactor = .OneMinusSourceAlpha
+            let kernelThreshold = library!.newFunctionWithName("kernelThreshold") //
             
-            return try! device!.newRenderPipelineStateWithDescriptor(descriptor)
-        }()
+            try! thresholdPipelineState = device!.newComputePipelineStateWithFunction(kernelThreshold!)
+            
+            blendPipelineState = {
+                let descriptor = MTLRenderPipelineDescriptor()
+                descriptor.vertexFunction = vertexBlend
+                descriptor.fragmentFunction = fragmentBlend
+                descriptor.colorAttachments[0].pixelFormat = .RGBA8Unorm
+                descriptor.colorAttachments[1].pixelFormat = .R16Float
+                descriptor.colorAttachments[2].pixelFormat = .R8Unorm
+                
+                return try! device!.newRenderPipelineStateWithDescriptor(descriptor)
+            }()
+            
+            displayPipelineState = {
+                let descriptor = MTLRenderPipelineDescriptor()
+                descriptor.vertexFunction = vertexDisplay
+                descriptor.fragmentFunction = fragmentDisplay
+                
+                let attachment = descriptor.colorAttachments[0]
+                attachment.pixelFormat = .BGRA8Unorm
+                
+                // Do blending in shader, unless this is faster?
+                attachment.blendingEnabled = true
+                attachment.rgbBlendOperation = .Add
+                attachment.alphaBlendOperation = .Add
+                attachment.sourceRGBBlendFactor = .SourceAlpha
+                attachment.sourceAlphaBlendFactor = .SourceAlpha
+                attachment.destinationRGBBlendFactor = .OneMinusSourceAlpha
+                attachment.destinationAlphaBlendFactor = .OneMinusSourceAlpha
+                
+                return try! device!.newRenderPipelineStateWithDescriptor(descriptor)
+            }()
+        }
         
         threadGroupSize = MTLSize(width: 8, height: 8, depth: 1)
         
@@ -209,17 +211,8 @@ class ContainerLayer: CAMetalLayer {
     func step() {
         
         // Blend -----
-    
-        // do first better
-        var first = true
-        
-        for subLayer in sublayers! {
-            
-            // use get position in view to support nested views
-            // take transforms into consideration
-            // do this by passing transforms to shaders
-            
-            if let gooeySubLayer = subLayer as? SubLayer {
+        for (index, element) in sublayers!.enumerate() {
+            if let subLayer = element as? SubLayer {
                 let width = CGRectGetWidth(subLayer.bounds) / CGRectGetWidth(bounds)
                 let height = CGRectGetHeight(subLayer.bounds) / CGRectGetHeight(bounds)
                             
@@ -230,9 +223,9 @@ class ContainerLayer: CAMetalLayer {
                 let translate = CATransform3DMakeTranslation(x, y, 0)
                 let transform = CATransform3DConcat(scale, translate)
 
-                renderView(transform: transform, distanceMap: gooeySubLayer.distanceTexture, colorMap: gooeySubLayer.colorTexture, first: first)
+                let first = index == 0
                 
-                first = false
+                renderView(transform: transform, distanceMap: subLayer.distanceTexture, colorMap: subLayer.colorTexture, first: first)
             }
         }
         // -----
@@ -265,7 +258,7 @@ class ContainerLayer: CAMetalLayer {
             let encoder: MTLRenderCommandEncoder = {
                 
                 let renderPassDescriptor: MTLRenderPassDescriptor = {
-                    let clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
+                    let clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
                     
                     let descriptor = MTLRenderPassDescriptor()
                     let attachment = descriptor.colorAttachments[0]

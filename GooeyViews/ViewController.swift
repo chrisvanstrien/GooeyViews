@@ -14,8 +14,6 @@ import MetalKit
 // Distance: 1 Channel, Normalized // Done
 // Threshold Target: 4 Channel, Normalized // Done
 
-// SubLayer should not render itself
-
 class ViewController: UIViewController {
     
     var leatherTexture: MTLTexture!
@@ -25,6 +23,8 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.backgroundColor = UIColor.greenColor()
         
         let container = ContainerLayer()
         container.frame = CGRect(x: 0, y: 0, width: 256, height: 256)
@@ -41,20 +41,20 @@ class ViewController: UIViewController {
         sub.frame = CGRect(x: 0, y: 0, width: 128, height: 128)
         sub.distanceTexture = heartTexture
         sub.colorTexture = leatherTexture
-        sub.backgroundColor = UIColor.blueColor().CGColor
-        sub.opacity = 0.5
+        //sub.backgroundColor = UIColor.blueColor().CGColor
+        //sub.opacity = 0.5
         container.addSublayer(sub)
         
         let sub2 = SubLayer();
-        sub2.frame = CGRect(x: 64, y: 64, width: 128, height: 128)
+        sub2.frame = CGRect(x: 32, y: 64, width: 128, height: 128)
         sub2.distanceTexture = heartTexture
         sub2.colorTexture = concreteTexture
-        sub2.backgroundColor = UIColor.redColor().CGColor
-        sub2.opacity = 0.5
+        //sub2.backgroundColor = UIColor.redColor().CGColor
+        //sub2.opacity = 0.5
         container.addSublayer(sub2)
         
-//        let t = sub.transform
-//        NSLog("\(t.m11) \(t.m12) \(t.m13) \(t.m14) - \(t.m21) \(t.m22) \(t.m23) \(t.m24) - \(t.m31) \(t.m32) \(t.m33) \(t.m34) - \(t.m41) \(t.m42) \(t.m43) \(t.m44)")
+        // ffs it says this defaults to false
+        container.opaque = false
         
         view.layer.addSublayer(container)
     }
